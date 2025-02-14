@@ -21,33 +21,51 @@ def prepare_prompt(tokenizer, task, model_type, left_cxt, right_cxt=None, crossf
         prefix_token = '<｜fim▁begin｜>'
         suffix_token = '<｜fim▁hole｜>'
         middle_token = '<｜fim▁end｜>'
+    elif 'qwen' in args.model_name_or_path.lower():
+        prefix_token = '<|fim_prefix|>'
+        suffix_token = '<|fim_suffix|>'
+        middle_token = '<|fim_middle|>'
 
     if model_type == "codelm_leftright_context":
-        left_cxt_truncated = tokenizer.decode(tokenizer.encode(left_cxt)[-(args.max_seq_length - args.gen_length - args.right_context_length):])
-        right_cxt_truncated = tokenizer.decode(tokenizer.encode(right_cxt)[:args.right_context_length])
+        # left_cxt_truncated = tokenizer.decode(tokenizer.encode(left_cxt)[-(args.max_seq_length - args.gen_length - args.right_context_length):])
+        # right_cxt_truncated = tokenizer.decode(tokenizer.encode(right_cxt)[:args.right_context_length])
+        left_cxt_truncated = tokenizer.convert_tokens_to_string(tokenizer.tokenize(left_cxt)[-(args.max_seq_length - args.gen_length - args.right_context_length):])
+        right_cxt_truncated = tokenizer.convert_tokens_to_string(tokenizer.tokenize(right_cxt)[:args.right_context_length])
         prompt = f'{prefix_token}{left_cxt_truncated}{suffix_token}{right_cxt_truncated}{middle_token}'
     elif model_type == "codelm":
-        left_cxt_truncated = tokenizer.decode(tokenizer.encode(left_cxt)[-(args.max_seq_length - args.gen_length):])
-        prompt = left_cxt_truncated
+        # left_cxt_truncated = tokenizer.decode(tokenizer.encode(left_cxt)[-(args.max_seq_length - args.gen_length):])
+        left_cxt_truncated = tokenizer.convert_tokens_to_string(tokenizer.tokenize(left_cxt)[-(args.max_seq_length - args.gen_length):])
+        # prompt = left_cxt_truncated
+        prompt = f'{prefix_token}{left_cxt_truncated}{suffix_token}{middle_token}'
     elif model_type == "codelm_cfc":
         assert crossfile_cxt is not None
-        left_cxt_truncated = tokenizer.decode(tokenizer.encode(left_cxt)[-(args.max_seq_length - args.gen_length - args.cfc_seq_length):])
-        crossfile_cxt_truncated = tokenizer.decode(tokenizer.encode(crossfile_cxt)[:args.cfc_seq_length])
-        prompt = crossfile_cxt_truncated + '\n' + left_cxt_truncated
+        # left_cxt_truncated = tokenizer.decode(tokenizer.encode(left_cxt)[-(args.max_seq_length - args.gen_length - args.cfc_seq_length):])
+        # crossfile_cxt_truncated = tokenizer.decode(tokenizer.encode(crossfile_cxt)[:args.cfc_seq_length])
+        left_cxt_truncated = tokenizer.convert_tokens_to_string(tokenizer.tokenize(left_cxt)[-(args.max_seq_length - args.gen_length - args.cfc_seq_length):])
+        crossfile_cxt_truncated = tokenizer.convert_tokens_to_string(tokenizer.tokenize(crossfile_cxt)[:args.cfc_seq_length])
+        # prompt = crossfile_cxt_truncated + '\n\n' + left_cxt_truncated
+        prompt = f'{prefix_token}{crossfile_cxt_truncated}\n\n{left_cxt_truncated}{suffix_token}{middle_token}'
     elif model_type == "codelm_right_cfc_left":
         assert crossfile_cxt is not None
-        left_cxt_truncated = tokenizer.decode(tokenizer.encode(left_cxt)[-(args.max_seq_length - args.gen_length - args.right_context_length - args.cfc_seq_length):])
-        right_cxt_truncated = tokenizer.decode(tokenizer.encode(right_cxt)[:args.right_context_length])
-        crossfile_cxt_truncated = tokenizer.decode(tokenizer.encode(crossfile_cxt)[:args.cfc_seq_length])
+        # left_cxt_truncated = tokenizer.decode(tokenizer.encode(left_cxt)[-(args.max_seq_length - args.gen_length - args.right_context_length - args.cfc_seq_length):])
+        # right_cxt_truncated = tokenizer.decode(tokenizer.encode(right_cxt)[:args.right_context_length])
+        # crossfile_cxt_truncated = tokenizer.decode(tokenizer.encode(crossfile_cxt)[:args.cfc_seq_length])
+        left_cxt_truncated = tokenizer.convert_tokens_to_string(tokenizer.tokenize(left_cxt)[-(args.max_seq_length - args.gen_length - args.right_context_length - args.cfc_seq_length):])
+        right_cxt_truncated = tokenizer.convert_tokens_to_string(tokenizer.tokenize(right_cxt)[:args.right_context_length])
+        crossfile_cxt_truncated = tokenizer.convert_tokens_to_string(tokenizer.tokenize(crossfile_cxt)[:args.cfc_seq_length])
         prompt = f'{prefix_token}{crossfile_cxt_truncated}\n\n{left_cxt_truncated}{suffix_token}{right_cxt_truncated}{middle_token}'
     elif model_type == "codelm_right_cfc_left_v1":
         assert crossfile_cxt is not None
-        left_cxt_truncated = tokenizer.decode(tokenizer.encode(left_cxt)[-(args.max_seq_length - args.gen_length - args.right_context_length - args.cfc_seq_length):])
-        right_cxt_truncated = tokenizer.decode(tokenizer.encode(right_cxt)[:args.right_context_length])
-        crossfile_cxt_truncated = tokenizer.decode(tokenizer.encode('\n\n' + crossfile_cxt)[:args.cfc_seq_length])
+        # left_cxt_truncated = tokenizer.decode(tokenizer.encode(left_cxt)[-(args.max_seq_length - args.gen_length - args.right_context_length - args.cfc_seq_length):])
+        # right_cxt_truncated = tokenizer.decode(tokenizer.encode(right_cxt)[:args.right_context_length])
+        # crossfile_cxt_truncated = tokenizer.decode(tokenizer.encode('\n\n' + crossfile_cxt)[:args.cfc_seq_length])
+        left_cxt_truncated = tokenizer.convert_tokens_to_string(tokenizer.tokenize(left_cxt)[-(args.max_seq_length - args.gen_length - args.right_context_length - args.cfc_seq_length):])
+        right_cxt_truncated = tokenizer.convert_tokens_to_string(tokenizer.tokenize(right_cxt)[:args.right_context_length])
+        crossfile_cxt_truncated = tokenizer.convert_tokens_to_string(tokenizer.tokenize(crossfile_cxt)[:args.cfc_seq_length])
         prompt = f'{prefix_token}{left_cxt_truncated}{suffix_token}{right_cxt_truncated}{crossfile_cxt_truncated}{middle_token}'
     else:
         raise NotImplementedError
+
     return prompt
 
 
@@ -76,7 +94,19 @@ def build_dataset(args):
 def process_output(output_ids, tokenizer):
     # output_ids = output.outputs[0].token_ids
     output_text = tokenizer.decode(output_ids)
-    res = output_text.split('<file_sep>')[0]
+    res = output_text
+    stops = [
+        "<｜end▁of▁sentence｜>",
+        "<|endoftext|>",
+        "<file_sep>",
+        "<|file_sep|>",
+        "<|fim_pad|>",
+        "<|cursor|>",
+    ]
+
+    for stop in stops:
+        res = res.split(stop)[0]
+
     return res
 
 
@@ -95,35 +125,24 @@ def model_inference(args):
     # llm = None
     if 'deepseek' in args.model_name_or_path.lower():
         llm = LLM(
-            model=args.model,
+            model=args.model_name_or_path,
             tensor_parallel_size=args.tp_size,
-            # max_model_len=args.model_max_tokens,
+            max_model_len=args.model_max_tokens,
             trust_remote_code=True,
         )
     else:
         # llm = LLM(model=args.model_name_or_path)
-        llm = LLM(model=args.model_name_or_path, tensor_parallel_size=args.tp_size, dtype=args.dtype)
+        llm = LLM(
+            model=args.model_name_or_path,
+            tensor_parallel_size=args.tp_size,
+            dtype=args.dtype,
+            max_model_len=args.model_max_tokens,
+        )
 
     sampling_params = SamplingParams(temperature=0, top_p=1, max_tokens=args.gen_length)
 
-    # for entry in data:
-    #     if entry["metadata"]["task_id"] != 'project_cc_python/45':
-    #         continue
-    #     prompt = entry['llm_prompt']
-    #     output = llm.generate([prompt], sampling_params)
-    #     output_ids = output[0].outputs[0].token_ids
-    #     output_tokens = tokenizer.convert_ids_to_tokens(output_ids)
-    #     output_text = tokenizer.decode(output_ids)
-    #     pred = process_output(output[0].outputs[0].token_ids, tokenizer)
-    #     print(output)
-    #     print(output_ids)
-    #     print(output_tokens)
-    #     print(pred)
-    #     # tokens = tokenizer.encode(prompt)
-    #     # print(tokens)
-    #     exit(0)
-
     outputs = llm.generate(prompts, sampling_params)
+    print(outputs[0])
 
     all_preds = []
     for entry, output in zip(data, outputs):
@@ -133,9 +152,6 @@ def model_inference(args):
 
         # pred = output.outputs[0].text
         pred = process_output(output.outputs[0].token_ids, tokenizer)
-        # print(entry['llm_prompt'])
-        # print(pred)
-        # exit(0)
 
         end_time = time.time_ns()
         latency = (end_time - start_time) / 1_000_000_000
@@ -202,10 +218,7 @@ if __name__ == "__main__":
         help='tensor parallel size'
     )
     parser.add_argument("--dtype", type=str, default='bfloat16', choices=['float32', 'float16', 'bfloat16'])
-    # parser.add_argument(
-    #     '--model_max_tokens', type=int, default=16384,
-    #     help='maximum number of tokens of the model'
-    # )
+    parser.add_argument('--model_max_tokens', type=int, default=16384, help='maximum number of tokens of the model')
     args = parser.parse_args()
 
     print(args)
